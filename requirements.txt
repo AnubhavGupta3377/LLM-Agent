@@ -1,0 +1,8 @@
+tiktoken
+bs4
+langchain
+langchain_community
+langchain-ollama
+langgraph
+tavily-python
+langchain-nomic "nomic[local]"
