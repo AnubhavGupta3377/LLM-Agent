@@ -2,6 +2,8 @@ Based on this [Langgraph tutorial](https://langchain-ai.github.io/langgraph/tuto
 
 An LLM agent build usig langchain and langgraph, with functinality such as web search and semantic search.
 
+![RAG Agent](images/langgraph_agent.png)
+
 **Tools Used:**
 1. [Ollama](https://ollama.com/download)
     - To run LLMs locally
@@ -36,6 +38,3 @@ An LLM agent build usig langchain and langgraph, with functinality such as web s
     python rag_agent.py
     ```
 7. Or run the notebook ```experiment.ipynb``` to see the agent in action
-
-The agent looks like this, in LangGraph:
-![RAG Agent](images/langgraph_agent.png)
