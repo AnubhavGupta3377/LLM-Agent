@@ -36,4 +36,4 @@ def test_relevance_prompt(llm_model):
 
 
 def concatenate_docs(docs):
-    return "\n\n".join(doc.page_content for doc in docs)
+    return "\n\n".join(doc for doc in docs)
