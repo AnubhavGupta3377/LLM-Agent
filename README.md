@@ -43,13 +43,13 @@ An LLM agent build usig langchain and langgraph, with functinality such as web s
 Verifying prompts...
 Prompts checks passed.
 Embedding texts: 100%|█████████████████████████████████████████████████████████████████████████████████████████████| 69/69 [00:12<00:00,  5.33inputs/s]
-Embedding texts: 100%|███████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 14.78inputs/s]
 ```
 ```Enter Question (or 'exit' to quit) >> Which teams have won the ODI world cup and when?```
 ```shell
 ## ROUTE QUESTION ##
 Datasource: vectorstore
 ## RETRIEVE ##
+Embedding texts: 100%|███████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 14.78inputs/s]
 {'Retrieve from VectorDB': {'documents': ['2015\nAustralia and New Zealand\nAustralia\n186–3\nNew Zealand\n183\nAustralia won by 7 wickets\n\n\n2019\nEngland and Wales\nEngland<TRUNCATED TEXT>']}}
 ## CHECK RELEVANCE ##
 No web search needed

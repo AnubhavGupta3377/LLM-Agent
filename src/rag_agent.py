@@ -189,8 +189,12 @@ workflow.add_conditional_edges(
 graph = workflow.compile()
 max_retries = 3
 
-question = input("Enter Question (or 'exit' to quit) >> ")
-while question != 'exit':
+while True:
+    question = input("Enter Question (or 'exit' to quit) >> ")
+    while question.strip() == "":
+        question = input("Please enter a valid question (or 'exit' to quit) >> ")
+    if question == 'exit':
+        break
     inputs = {"question": question, "max_retries": max_retries}
     if rag_config.show_steps:
         for event in graph.stream(inputs, stream_mode="updates"):
@@ -199,4 +203,3 @@ while question != 'exit':
         print("Sorry, couldn't generate answer")
     else:
         print(event['Generate Answer']['answer'])
-    question = input("Enter Question (or 'exit' to quit) >> ")
