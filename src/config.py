@@ -30,3 +30,4 @@ class RAG_Config:
     ]
 
     verify_prompts = True
+    show_steps = True

@@ -142,7 +142,7 @@ def check_hallucination(state):
     )
 
     evaluation = json.loads(result.content)['binary_evaluation']
-    if evaluation == "bad" and state["num_retries"] >= state["max_retries"]:
+    if evaluation == "bad" and state["num_retries"] > state["max_retries"]:
         print("Max retries exceeded. Exiting.")
         return "max_retries_exceeded"
     if evaluation == "good":
@@ -187,7 +187,16 @@ workflow.add_conditional_edges(
 )
 
 graph = workflow.compile()
+max_retries = 3
 
-inputs = {"question": "Who won today's IPL match?", "max_retries": 3}
-for event in graph.stream(inputs, stream_mode="values"):
-    print(event)
+question = input("Enter Question (or 'exit' to quit) >> ")
+while question != 'exit':
+    inputs = {"question": question, "max_retries": max_retries}
+    if rag_config.show_steps:
+        for event in graph.stream(inputs, stream_mode="updates"):
+            print(event)
+    if event['Generate Answer']['num_retries'] > max_retries:
+        print("Sorry, couldn't generate answer")
+    else:
+        print(event['Generate Answer']['answer'])
+    question = input("Enter Question (or 'exit' to quit) >> ")
