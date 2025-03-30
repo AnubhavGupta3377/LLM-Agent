@@ -7,13 +7,11 @@ An LLM agent build usig langchain and langgraph, with functinality such as web s
 **Tools Used:**
 1. [Ollama](https://ollama.com/download)
     - To run LLMs locally
-2. [LangChain](https://python.langchain.com/docs/introduction/)
+2. [LangChain](https://python.langchain.com/docs/introduction/), [LangGraph](https://langchain-ai.github.io/langgraph/)
     - For building the ai-agent
+    - Visualization of the agent
 3. [Nomic Embeddings](https://www.nomic.ai/blog/posts/nomic-embed-text-v1)
     - Used for semantic search using vector embeddings 
-4. [LangGraph](https://langchain-ai.github.io/langgraph/)
-    - For building the ai agent as a workflow
-    - Good for visualization
 
 **How to run:**
 1. Install the dependencies
