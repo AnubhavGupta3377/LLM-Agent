@@ -1,14 +1,13 @@
-from langchain_ollama import ChatOllama
 import json
+from typing import List
+from typing_extensions import TypedDict
+from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_community.vectorstores import SKLearnVectorStore
 from langchain_nomic.embeddings import NomicEmbeddings
 from langchain_community.tools.tavily_search import TavilySearchResults
-
-from typing import List
-from typing_extensions import TypedDict
 from langgraph.graph import StateGraph, END
 
 from config import setup_env, RAG_Config
@@ -18,6 +17,35 @@ from prompts import ROUTER_SYSTEM_PROMPT, ROUTER_USER_PROMPT, RELEVANCE_SYSTEM_P
 
 setup_env()
 rag_config = RAG_Config()
+
+
+class VectorStoreRetriever:
+    def __init__(self):
+        self.documents = None
+        self.vectorstore = None
+        self.retriever = None
+
+    @classmethod
+    def from_urls(self, urls):
+        # Load documents
+        self.documents = WebBaseLoader(urls).load()
+
+        # Split documents based on number of tokens
+        text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+            encoding_name="gpt2",
+            chunk_size=1024,
+            chunk_overlap=200
+        )
+        doc_splits = text_splitter.split_documents(self.documents)
+
+        # Add to vectorDB and create retriever
+        self.vectorstore = SKLearnVectorStore.from_documents(
+            documents=doc_splits,
+            embedding=NomicEmbeddings(model="nomic-embed-text-v1.5", inference_mode="local"),
+        )
+        self.retriever = self.vectorstore.as_retriever(k=3)
+        return self.retriever
+
 
 # Chat model for inference
 local_llm = rag_config.ollama_model
@@ -31,29 +59,11 @@ if rag_config.verify_prompts:
     test_relevance_prompt(llm_json_mode)
     print("Prompts checks passed.")
 
-
-######################### Create vector DB and get corresponding retriever #########################
-# Load documents
-docs = WebBaseLoader(rag_config.vectordb_urls).load()
-
-# Split documents based on number of tokens
-text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-    encoding_name="gpt2",
-    chunk_size=500,
-    chunk_overlap=100
-)
-doc_splits = text_splitter.split_documents(docs)
-
-# Add to vectorDB and create retriever
-vectorstore = SKLearnVectorStore.from_documents(
-    documents=doc_splits,
-    embedding=NomicEmbeddings(model="nomic-embed-text-v1.5", inference_mode="local"),
-)
-retriever = vectorstore.as_retriever(k=3)
+# Create vector DB retriever
+retriever = VectorStoreRetriever.from_urls(rag_config.vectordb_urls)
 
 # Web search tool
 web_search_tool = TavilySearchResults(k=3)
-
 
 ######################### Create LangGraph for the RAG Agent #########################
 class GraphState(TypedDict):
@@ -64,7 +74,6 @@ class GraphState(TypedDict):
     answer: str
     num_retries: int
     max_retries: int
-
 
 ############### Graph Nodes ###############
 def retrieve_from_vector_db(state):
@@ -108,7 +117,6 @@ def generate_answer(state):
     num_retries = state.get("num_retries", 0)
     return {"answer": generation.content, "num_retries": num_retries + 1}
 
-
 ############### Graph Edges ###############
 def route_question(state):
     '''Whether to route question to VectorDB or WebSearch'''
@@ -150,7 +158,6 @@ def check_hallucination(state):
         return "good"
     print(f"Answer is bad. Hallucination detected. Retry.")
     return "bad"
-
 
 ############### Create the workflow ###############
 workflow = StateGraph(GraphState)
